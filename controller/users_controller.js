@@ -9,7 +9,7 @@ module.exports.profile = function (req, res) {
                     user: user
                 });
             }
-            return res.redirect('/users/sign-in');
+            return res.redirect('/users /sign-in');
         });
     } else {
         return res.redirect('/users/sign-in');
@@ -82,12 +82,21 @@ module.exports.createSession = function (req, res) {
             return res.redirect('back');
         }
     })
+}
 
+module.exports.deleteSession = function (req, res) {
+    console.log('Req Cookies', req.cookies);
+    if (req.cookies.user_id) {
+        User.findById(req.cookies.user_id, function (err, user) {
+            if (err) {
+                console.log('Error in finding the user');
+                return;
+            }
 
-
-
-    //handle session creation
-
-
-    // handle user not found
+            if (user) {
+                res.cookie('user_id','');
+                return res.redirect('/users/sign-in');
+            }
+        });
+    }
 }
