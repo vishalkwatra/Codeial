@@ -5,7 +5,7 @@ const port = 8000;
 const expressLayouts = require('express-ejs-layouts');
 const db = require('./config/mongoose');
 
-//used for authenication cookie
+//used for session cookie
 const session = require('express-session');
 const passport = require('passport');
 const passportLocal = require('./config/passport-local-strategy');
@@ -41,6 +41,8 @@ app.use(session({
 app.use(passport.initialize());
 
 app.use(passport.session());
+
+app.use(passport.setAuthenticatedUser);
 
 // use express router
 app.use('/', require('./routes'));   // ./routes/index.js
