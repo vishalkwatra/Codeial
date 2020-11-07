@@ -1,0 +1,8 @@
+footer {
+  background-color: lightgray;
+  height: 10vh;
+  display: flex;
+  justify-content: left; }
+
+footer div a {
+  color: white; }

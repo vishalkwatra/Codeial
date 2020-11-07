@@ -1,0 +1,21 @@
+header{
+    display: flex;
+    justify-content: space-between;
+    background-color: blue;
+    color: white;
+    font-size: large;
+}
+
+.links{
+    display: flex;
+    justify-content: space-between;
+}
+
+header{
+    div{
+        a{
+            color: white;
+            text-decoration: none;
+        }
+    }
+}
