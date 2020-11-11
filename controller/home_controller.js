@@ -10,13 +10,21 @@ module.exports.home = function (req, res) {
     //     });    
     // });
 
-    Post.find({}).populate('user').exec(function (err, posts) {
-        return res.render('home', {
-            posts: posts,
-            title: "Home"
-        });
-    }
-    );
+    Post.find({})
+        .populate('user')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'user'
+            }
+        })
+        .exec(function (err, posts) {
+            return res.render('home', {
+                posts: posts,
+                title: "Home"
+            });
+        }
+        );
 
     //    res.cookie('user_id',25);
     // return res.end('<h1>Express is up for Codeial</h1>');
