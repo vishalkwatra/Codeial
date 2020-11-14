@@ -5,6 +5,7 @@ const passport = require('passport');
 const usersController = require('../controller/users_controller');
 
 router.get('/profile/:id', passport.checkAuthentication, usersController.profile);
+router.post('/update/:id', passport.checkAuthentication, usersController.update);
 router.get('/LinkedInProfile', usersController.profileLinkedIn);
 
 router.get('/sign-up', usersController.signUp);
