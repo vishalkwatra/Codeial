@@ -4,7 +4,7 @@ const Post = require('../models/post');
 module.exports.create = function (req, res) {
     Post.findById(req.body.post, function (err, post) {
         if (err) {
-            console.log('Error in finding post', err);
+            req.flash('error', err);
         }
         if (post) {
             Comment.create({
@@ -14,7 +14,7 @@ module.exports.create = function (req, res) {
             }, function (err, comment) {
                 post.comments.push(comment);
                 post.save();
-
+                req.flash('success', 'Comments are added!');
                 res.redirect('/');
 
             })
@@ -30,9 +30,11 @@ module.exports.destroy = function (req, res) {
             comment.remove();
 
             Post.findByIdAndUpdate(postId, { $pull: { comments: req.params.id } }, function (err, post) {
+                req.flash('success', 'Comment was deleted');
                 return res.redirect('back');
             });
         } else {
+            req.flash('error', 'This Comment can not be deleted!!');
             return res.redirect('back');
         }
     });

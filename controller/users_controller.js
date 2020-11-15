@@ -15,6 +15,7 @@ module.exports.update = function (req, res) {
     console.log('Update profile called');
     if (req.user.id == req.params.id) {
         User.findByIdAndUpdate(req.params.id, req.body, function (err, user) {
+            req.flash('success', 'Profile was successfully updated');
             return res.redirect('back');
         });
     } else {
@@ -50,15 +51,19 @@ module.exports.signIn = function (req, res) {
 // get the sign up data
 module.exports.create = function (req, res) {
     if (req.body.password != req.body.confirm_password) {
+        req.flash('error', 'Password and confirm password dont match!');
         return res.redirect('back');
     }
 
     User.findOne({ email: req.body.email }, function (err, user) {
-        if (err) { console.log('Error in finding user in signing up'); return }
+        if (err) { req.flash('error', 'Error in finding up the user');
+         return; }
 
         if (!user) {
             User.create(req.body, function (err, user) {
-                if (err) { console.log('Error in creating user while signing up'); return }
+                if (err) { 
+                    req.flash('error', 'Error in creating user while signing up');
+                    return; }
 
                 return res.redirect('/users/sign-in');
             });
