@@ -11,16 +11,47 @@ module.exports.profile = function (req, res) {
 
 }
 
-module.exports.update = function (req, res) {
-    console.log('Update profile called');
-    if (req.user.id == req.params.id) {
-        User.findByIdAndUpdate(req.params.id, req.body, function (err, user) {
-            req.flash('success', 'Profile was successfully updated');
+module.exports.update = async function (req, res) {
+    // console.log('Update profile called');
+    // if (req.user.id == req.params.id) {
+    //     User.findByIdAndUpdate(req.params.id, req.body, function (err, user) {
+    //         req.flash('success', 'Profile was successfully updated');
+    //         return res.redirect('back');
+    //     });
+    // } else {
+    //     return res.status(401).send('Unauthorized');
+    // }
+
+    if (req.user.id === req.params.id) {
+        try {
+            let user = await User.findById(req.params.id);
+            User.uploadedAvatar(req, res, function (err) {
+                if (err) {
+                    console.log('****Multer Error', err);
+                }
+
+                user.name = req.body.name;
+                user.email = req.body.email;
+
+                if (req.file) {
+                    // this is saving the path of the uploaded file into the avatar field in the user
+                    user.avatar = User.avatarPath + '/' + req.file.filename;                    
+                }
+
+                user.save();
+                return res.redirect('back');
+
+            });
+        } catch (err) {
+            console.log(err);
+            req.flash('error', err);
             return res.redirect('back');
-        });
+        }
     } else {
+        req.flash('error', 'Unauthorized!');
         return res.status(401).send('Unauthorized');
     }
+
 }
 
 module.exports.profileLinkedIn = function (req, res) {
@@ -56,14 +87,17 @@ module.exports.create = function (req, res) {
     }
 
     User.findOne({ email: req.body.email }, function (err, user) {
-        if (err) { req.flash('error', 'Error in finding up the user');
-         return; }
+        if (err) {
+            req.flash('error', 'Error in finding up the user');
+            return;
+        }
 
         if (!user) {
             User.create(req.body, function (err, user) {
-                if (err) { 
+                if (err) {
                     req.flash('error', 'Error in creating user while signing up');
-                    return; }
+                    return;
+                }
 
                 return res.redirect('/users/sign-in');
             });
@@ -79,7 +113,7 @@ module.exports.create = function (req, res) {
 // sign in and create a session for the user
 module.exports.createSession = function (req, res) {
     req.flash('success', 'Logged in Successfully');
-    
+
     return res.redirect('/');
 }
 
