@@ -1,35 +1,55 @@
 const Comment = require('../models/comment');
 const Post = require('../models/post');
+const commentsMailer = require('../mailers/comments_mailer');
 
-module.exports.create = function (req, res) {
-    Post.findById(req.body.post, function (err, post) {
+module.exports.create = async function (req, res) {
+    Post.findById(req.body.post, async function (err, post) {
         if (err) {
             req.flash('error', err);
         }
+
         if (post) {
-            Comment.create({
+            let comment = await Comment.create({
                 content: req.body.content,
                 post: req.body.post,
                 user: req.user._id
-            }, function (err, comment) {
-                post.comments.push(comment);
-                post.save();
+            });
 
-                if (req.xhr) {
-                    return res.status(200).json({
-                        data: {
-                            comment: comment,
-                            post: post
-                        },
-                        message: 'Comment created!'
-                    });
-                }
+            post.comments.push(comment);
+            post.save();
 
-                req.flash('success', 'Comments are added!');
-                res.redirect('/');
+            comment = await comment.populate('user', 'name email').execPopulate();
+            commentsMailer.newComment(comment);
 
-            })
         }
+
+        // if (post) {
+        //     Comment.create({
+        //         content: req.body.content,
+        //         post: req.body.post,
+        //         user: req.user._id
+        //     }, function (err, comment) {
+        //         post.comments.push(comment);
+        //         post.save();
+
+        //         comment = await comment.populate('user', 'name').execPopulate();
+        //         commentsMailer.newComment(comment);
+
+        //         if (req.xhr) {
+        //             return res.status(200).json({
+        //                 data: {
+        //                     comment: comment,
+        //                     post: post
+        //                 },
+        //                 message: 'Comment created!'
+        //             });
+        //         }
+
+        //         req.flash('success', 'Comments are added!');
+        //         res.redirect('/');
+
+        //     })
+        // }
     });
 }
 
